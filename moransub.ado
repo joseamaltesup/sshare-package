@@ -1,4 +1,4 @@
-*! version 2.2.4  31aug2026
+*! version 2.2.5  31aug2026
 *! moransub -- Moran's I per unit, restricted to the subgraph of
 *!             areas with data, with permutation-based inference.
 *!
@@ -442,7 +442,7 @@ program define moransub, rclass sortpreserve
     label variable `prefix'sig_level ///
         "Smallest level passed: 1/5/10; 0 = n.s.; . = unreliable"
     foreach v in `mata_out' `derived' {
-        char `prefix'`v'[moransub] "2.2.4"
+        char `prefix'`v'[moransub] "2.2.5"
     }
 
     * -- Run record: provenance + replay -----------------------------------
@@ -595,7 +595,7 @@ program define moransub_dsp, sclass sortpreserve
             "Links         = " as result `nlinks'
         display as text "Restriction: `mode'" ///
             _col(52) as text "alpha         = " as result %4.2f `alpha'
-        display as text "{hline 38}{c TT}{hline 39}"
+        display as text "{hline 37}{c TT}{hline 40}"
         if `has_desc' | `bystr' {
             display as text %-37s "Unit" "{c |}" ///
                 _col(41) "n" _col(48) "I" _col(58) "E(I)" ///
@@ -606,7 +606,7 @@ program define moransub_dsp, sclass sortpreserve
                 _col(41) "n" _col(48) "I" _col(58) "E(I)" ///
                 _col(66) "p-value" _col(75) "Sig."
         }
-        display as text "{hline 38}{c +}{hline 39}"
+        display as text "{hline 37}{c +}{hline 40}"
 
         preserve
         quietly keep if `tag1'
@@ -654,7 +654,7 @@ program define moransub_dsp, sclass sortpreserve
         }
         restore
 
-        display as text "{hline 38}{c BT}{hline 39}"
+        display as text "{hline 37}{c BT}{hline 40}"
         display as text "n = effective subgraph size." ///
             "  Two-tailed permutation p."
         display as text "* p<0.10   ** p<0.05   *** p<0.01" ///

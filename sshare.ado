@@ -1,4 +1,4 @@
-*! version 3.0.3  28aug2026
+*! version 3.0.4  31aug2026
 *! sshare -- Traditional and spatial shift-share decomposition
 *!
 *! Decomposes the growth of every unit-area pair against the full
@@ -509,7 +509,7 @@ program define sshare, rclass sortpreserve
             label variable `prefix'EDL "Local differential effect: g - W.g_i"
         }
         foreach v of local outvars {
-            char `prefix'`v'[sshare] "3.0.3"
+            char `prefix'`v'[sshare] "3.0.4"
         }
         format `prefix'g `prefix'G_i `prefix'CN `prefix'EE `prefix'ED %9.5f
         if "`spatial'" != "" {
@@ -816,11 +816,11 @@ program define sshare_dsp, sclass sortpreserve
             if `"`showif'"' != "" {
                 display as text "Showing units with: `showif'"
             }
-            display as text "{hline 38}{c TT}{hline 39}"
+            display as text "{hline 37}{c TT}{hline 40}"
             display as text %-37s "Unit" "{c |}" ///
                 _col(41) "Pairs" _col(50) "`t0'" _col(62) "`t1'" ///
                 _col(72) "G_i"
-            display as text "{hline 38}{c +}{hline 39}"
+            display as text "{hline 37}{c +}{hline 40}"
 
             preserve
             quietly keep if `showmark'
@@ -848,7 +848,7 @@ program define sshare_dsp, sclass sortpreserve
             }
             restore
 
-            display as text "{hline 38}{c BT}{hline 39}"
+            display as text "{hline 37}{c BT}{hline 40}"
             display as text "Pairs = areas with data in both years" ///
                 " (within if/in)."
             if `genflag' {
