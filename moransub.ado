@@ -1,4 +1,4 @@
-*! version 2.2.5  31aug2026
+*! version 2.2.6  31aug2026
 *! moransub -- Moran's I per unit, restricted to the subgraph of
 *!             areas with data, with permutation-based inference.
 *!
@@ -442,7 +442,7 @@ program define moransub, rclass sortpreserve
     label variable `prefix'sig_level ///
         "Smallest level passed: 1/5/10; 0 = n.s.; . = unreliable"
     foreach v in `mata_out' `derived' {
-        char `prefix'`v'[moransub] "2.2.5"
+        char `prefix'`v'[moransub] "2.2.6"
     }
 
     * -- Run record: provenance + replay -----------------------------------
@@ -671,19 +671,29 @@ program define moransub_dsp, sclass sortpreserve
             " Results are in the generated variables.)"
     }
 
+    * Dot leaders are computed at run time: two labels interpolate
+    * nmin()/alpha(), so a fixed dot count cannot keep the numbers
+    * aligned across parameter values.
+    local afmt : display %4.2f `alpha'
+    local slbl1 "Units with a statistic"
+    local sval1 `nstat'
+    local slbl2 "Reliable (n_eff >= `nmin')"
+    local sval2 `nreliable'
+    local slbl3 "Significant at  1% (reliable)"
+    local sval3 `n_sig1'
+    local slbl4 "Significant at  5% (reliable)"
+    local sval4 `n_sig5'
+    local slbl5 "Significant at 10% (reliable)"
+    local sval5 `n_sig10'
+    local slbl6 "Flagged moran_sig (p < `afmt')"
+    local sval6 `n_sig'
+
     display as text ""
-    display as text "Units with a statistic ............ " ///
-        as result %5.0f `nstat'
-    display as text "Reliable (n_eff >= `nmin') .......... " ///
-        as result %5.0f `nreliable'
-    display as text "Significant at  1% (reliable) ..... " ///
-        as result %5.0f `n_sig1'
-    display as text "Significant at  5% (reliable) ..... " ///
-        as result %5.0f `n_sig5'
-    display as text "Significant at 10% (reliable) ..... " ///
-        as result %5.0f `n_sig10'
-    display as text "Flagged moran_sig (p < " %4.2f `alpha' ///
-        ") ...... " as result %5.0f `n_sig'
+    forvalues i = 1/6 {
+        local ndots = max(3, 33 - ustrlen(`"`slbl`i''"'))
+        display as text `"`slbl`i'' "' "{dup `ndots':.}" ///
+            as result %6.0f `sval`i''
+    }
 
     quietly summarize `prefix'n_eff if `tag1' & !missing(`prefix'I)
     if r(N) > 0 {
