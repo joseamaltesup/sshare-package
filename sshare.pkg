@@ -1,0 +1,18 @@
+v 3
+d sshare and moransub: spatial shift-share and per-unit Moran's I
+d
+d sshare decomposes the growth of every unit-area pair against the
+d full economy (CN = EE + ED) and, with the spatial option, against
+d the neighborhood defined by a contiguity matrix (CNL = EEL + EDL).
+d moransub computes Moran's I unit by unit, restricted to the
+d subgraph of areas with data, with a two-tailed permutation p-value
+d centered on the randomization null E[I] = -1/(n-1).
+d
+d Requires: Stata 16.1+
+d
+d Author: Jose A. Maltes
+d
+f sshare.ado
+f sshare.sthlp
+f moransub.ado
+f moransub.sthlp

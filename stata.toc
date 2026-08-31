@@ -1,0 +1,3 @@
+v 3
+d sshare and moransub: spatial shift-share and per-unit Moran's I
+p sshare shift-share decomposition (traditional and spatial) and Moran's I per unit on the subgraph of areas with data
