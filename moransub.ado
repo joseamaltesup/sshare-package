@@ -1,7 +1,6 @@
-*! version 2.2.3  28aug2026
+*! version 2.2.4  31aug2026
 *! moransub -- Moran's I per unit, restricted to the subgraph of
-*!             areas with data, with a two-tailed permutation p-value
-*!             centered on the randomization null E[I] = -1/(n-1).
+*!             areas with data, with permutation-based inference.
 *!
 *! Wraps moransub_unit() and its helpers (moransub_I, moransub_p3,
 *! moransub_kp, moransub_rownorm), defined in the Mata section at the
@@ -432,7 +431,7 @@ program define moransub, rclass sortpreserve
     label variable `prefix'E_I       "E[I] under H0 = -1/(n-1)"
     label variable `prefix'p_norm    "p, normal approximation"
     label variable `prefix'p_two     ///
-        "Permutation p, two-tailed, centered on the null"
+        "Permutation p, two-tailed"
     label variable `prefix'p_one     "Permutation p, one-tailed"
     label variable `prefix'p_abs0    "Permutation p, |I| centered at zero"
     label variable `prefix'I_kp      "Kelejian-Prucha I"
@@ -443,7 +442,7 @@ program define moransub, rclass sortpreserve
     label variable `prefix'sig_level ///
         "Smallest level passed: 1/5/10; 0 = n.s.; . = unreliable"
     foreach v in `mata_out' `derived' {
-        char `prefix'`v'[moransub] "2.2.3"
+        char `prefix'`v'[moransub] "2.2.4"
     }
 
     * -- Run record: provenance + replay -----------------------------------
@@ -657,7 +656,7 @@ program define moransub_dsp, sclass sortpreserve
 
         display as text "{hline 38}{c BT}{hline 39}"
         display as text "n = effective subgraph size." ///
-            "  Two-tailed permutation p, centered on E(I)."
+            "  Two-tailed permutation p."
         display as text "* p<0.10   ** p<0.05   *** p<0.01" ///
             "  (stars shown for reliable units only)."
         quietly count if `tag1' & `prefix'reliable == 0 & ///

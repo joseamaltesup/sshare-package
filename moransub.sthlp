@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 2.2.3  28aug2026}{...}
+{* *! version 2.2.4  31aug2026}{...}
 {viewerjumpto "Syntax" "moransub##syntax"}{...}
 {viewerjumpto "Description" "moransub##description"}{...}
 {viewerjumpto "Options" "moransub##options"}{...}
@@ -67,16 +67,14 @@ permutations):
 {opt by()}, restricting the weight matrix to the SUBGRAPH of areas
 with data: missing areas are removed and the neighborhoods are
 re-standardized there, instead of being filled with zeros (which
-inflates false positives dramatically). In the Economic Censuses a
+inflates false positives dramatically). In many official sources a
 missing value reflects confidentiality suppression, not absence.
 
 {pstd}
 Inference uses a permutation test with three p-values. The headline
-{cmd:p_two} is two-tailed and centered on the simulated mean: under
-randomization E[I] = -1/(n-1), not zero (Cliff and Ord 1981; Bivand
-and Wong 2018), so a one-sided pseudo-p is biased. {cmd:p_one}
-replicates PySAL's {cmd:esda.Moran.p_sim}; {cmd:p_abs0} keeps the
-legacy |I|-centered-at-zero rule for traceability. {cmd:p_norm} and
+statistic is the two-tailed {cmd:p_two}. {cmd:p_one} replicates
+PySAL's {cmd:esda.Moran.p_sim}; {cmd:p_abs0} keeps the legacy
+|I|-centered-at-zero rule for traceability. {cmd:p_norm} and
 the Kelejian-Prucha pair ({cmd:I_kp}, {cmd:p_kp}) are analytic
 companions.
 
@@ -182,8 +180,9 @@ p_one p_abs0 I_kp p_kp E_I reliable moran_sig sig_level}.
 
 {pstd}
 Alfonso Mendoza Velazquez and Jose A. Maltes Cuevas. Companion command
-for the chapter "La Resiliencia Economica del Cluster IT en Mexico"
-(Econometria Aplicada con Stata, Stata Press).
+for the chapter "La Resiliencia Economica Regional y por Clusteres
+Industriales: Analisis Logistico de Cambio y Participacion Espacial
+en Mexico" (Econometria Aplicada con Stata, Stata Press).
 
 
 {title:References}

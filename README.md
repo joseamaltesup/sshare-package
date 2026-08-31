@@ -12,8 +12,7 @@ no dependencies. Requires Stata 16.1 or newer.
   `generate` option adds the effects as dataset variables.
 - **`moransub`** — Moran's I computed unit by unit, restricted to the
   subgraph of areas holding data for that unit, with a two-tailed
-  permutation p-value centered on the randomization null
-  `E[I] = -1/(n-1)`.
+  permutation p-value.
 
 Both commands read the spatial weight matrix either from an edge list
 embedded in the dataset characteristics (`_dta[W_n]`, `_dta[W_links]`,
@@ -47,5 +46,6 @@ MIT — see [LICENSE](LICENSE).
 ## Origin
 
 These commands were written for the chapter "La Resiliencia Economica
-del Cluster IT en Mexico" of *Econometria Aplicada con Stata* (Stata
-Press).
+Regional y por Clusteres Industriales: Analisis Logistico de Cambio y
+Participacion Espacial en Mexico" of *Econometria Aplicada con Stata*
+(Stata Press).

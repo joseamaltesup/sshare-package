@@ -285,7 +285,9 @@ results in {cmd:r()}:{p_end}
 
 {pstd}
 Alfonso Mendoza Velazquez and Jose A. Maltes Cuevas. Companion command
-for the chapter "La Resiliencia Economica del Cluster IT en Mexico"
+for the chapter "La Resiliencia Economica Regional y por Clusteres
+Industriales: Analisis Logistico de Cambio y Participacion Espacial
+en Mexico"
 (Econometria Aplicada con Stata, Stata Press).
 
 
