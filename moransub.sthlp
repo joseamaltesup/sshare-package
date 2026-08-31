@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 2.2.4  31aug2026}{...}
+{* *! version 2.3.0  31aug2026}{...}
 {viewerjumpto "Syntax" "moransub##syntax"}{...}
 {viewerjumpto "Description" "moransub##description"}{...}
 {viewerjumpto "Options" "moransub##options"}{...}

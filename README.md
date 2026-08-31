@@ -1,7 +1,7 @@
 # sshare & moransub
 
 Two Stata commands for spatial regional analysis. Pure Stata + Mata,
-no dependencies. Requires Stata 16.1 or newer.
+no dependencies. Requires Stata 19.5 or newer.
 
 - **`sshare`** — traditional (Dunn) and spatial (Nazara–Hewings)
   shift-share decomposition. Decomposes the growth of every unit-area

@@ -1,4 +1,4 @@
-*! version 2.2.6  31aug2026
+*! version 2.3.0  31aug2026
 *! moransub -- Moran's I per unit, restricted to the subgraph of
 *!             areas with data, with permutation-based inference.
 *!
@@ -19,7 +19,7 @@
 *! (one row per unit). See the help file for the full description.
 
 program define moransub, rclass sortpreserve
-    version 16.1
+    version 19.5
 
     * ================================================================
     * REPLAY: moransub [, label() notable] -- no permutations
@@ -442,7 +442,7 @@ program define moransub, rclass sortpreserve
     label variable `prefix'sig_level ///
         "Smallest level passed: 1/5/10; 0 = n.s.; . = unreliable"
     foreach v in `mata_out' `derived' {
-        char `prefix'`v'[moransub] "2.2.6"
+        char `prefix'`v'[moransub] "2.3.0"
     }
 
     * -- Run record: provenance + replay -----------------------------------
@@ -517,7 +517,7 @@ end
 * replay; leaves the counts in s() for the caller's returns.
 * ======================================================================
 program define moransub_dsp, sclass sortpreserve
-    version 16.1
+    version 19.5
     syntax , TOUSE(name) BYN(varname) BYSRC(string) BYSTR(integer) ///
              NPERM(string) ALPHA(string) NMIN(string) MODE(string) ///
              WDESC(string) NLINKS(string) ///
@@ -714,7 +714,7 @@ end
 * global setting.
 * ======================================================================
 
-version 16.1
+version 19.5
 
 mata:
 mata set matastrict on

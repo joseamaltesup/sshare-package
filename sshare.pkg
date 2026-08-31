@@ -7,7 +7,7 @@ d the neighborhood defined by a contiguity matrix (CNL = EEL + EDL).
 d moransub computes Moran's I unit by unit, restricted to the
 d subgraph of areas with data, with a two-tailed permutation p-value.
 d
-d Requires: Stata 16.1+
+d Requires: Stata 19.5+
 d
 d Author: Jose A. Maltes
 d
