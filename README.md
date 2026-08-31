@@ -27,9 +27,8 @@ From Stata:
 net install sshare, from(https://raw.githubusercontent.com/joseamaltesup/sshare-package/main/)
 ```
 
-(replace `USER/REPO` with this repository's path), or copy the
-`.ado` and `.sthlp` files to your personal ado directory
-(`sysdir` shows it).
+or copy the `.ado` and `.sthlp` files to your personal ado
+directory (`sysdir` shows it).
 
 ## Documentation
 

@@ -36,8 +36,7 @@ Abra Stata y escriba en la ventana de comandos:
 net install sshare, from(https://raw.githubusercontent.com/joseamaltesup/sshare-package/main/)
 ```
 
-(sustituya `USUARIO/REPO` por la ruta de este repositorio). Para
-comprobar que quedó instalado:
+Para comprobar que quedó instalado:
 
 ```stata
 help sshare
