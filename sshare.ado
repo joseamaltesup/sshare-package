@@ -1,4 +1,4 @@
-*! version 3.1.0  31aug2026
+*! version 3.2.0  01sep2026
 *! sshare -- Traditional and spatial shift-share decomposition
 *!
 *! Decomposes the growth of every unit-area pair against the full
@@ -20,7 +20,7 @@
 *!   See the help file for the full description.
 
 program define sshare, rclass sortpreserve
-    version 19.5
+    version 17
 
     * ================================================================
     * REPLAY: sshare [, display options] -- silent full recomputation
@@ -509,7 +509,7 @@ program define sshare, rclass sortpreserve
             label variable `prefix'EDL "Local differential effect: g - W.g_i"
         }
         foreach v of local outvars {
-            char `prefix'`v'[sshare] "3.1.0"
+            char `prefix'`v'[sshare] "3.2.0"
         }
         format `prefix'g `prefix'G_i `prefix'CN `prefix'EE `prefix'ED %9.5f
         if "`spatial'" != "" {
@@ -627,7 +627,7 @@ end
 * sshare_chkshow -- validates show() against the spatial option
 * ======================================================================
 program define sshare_chkshow
-    version 19.5
+    version 17
     syntax [, SHOW(string) SPATIAL ]
     if "`show'" == "" exit
     foreach s of local show {
@@ -655,7 +655,7 @@ end
 * series and first tags one row per pair.
 * ======================================================================
 program define sshare_pair, sortpreserve
-    version 19.5
+    version 17
     syntax , TOUSE(name) BY(varname) FIRST(name) Y0(name) Y1(name) ///
              YSTUB(string) T0(integer) T1(integer) ///
              [ YEAR(varname) ID(varlist) ]
@@ -702,7 +702,7 @@ end
 * s(n_pairs) and s(n_dropped) for the caller's returns.
 * ======================================================================
 program define sshare_dsp, sclass sortpreserve
-    version 19.5
+    version 17
     syntax , TOUSE(name) FIRST(name) BYN(varname) BYSRC(string) ///
              BYSTR(integer) Y0(varname) Y1(varname) YSTUB(string) ///
              T0(integer) T1(integer) GVALue(string) ///
@@ -1197,7 +1197,7 @@ end
 * ado-file is local to the ado-file.
 * ======================================================================
 
-version 19.5
+version 17
 
 mata:
 mata set matastrict on

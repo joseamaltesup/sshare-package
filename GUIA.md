@@ -42,7 +42,7 @@ Para comprobar que quedó instalado:
 help sshare
 ```
 
-Si se abre la ayuda, está listo. Requiere Stata 19.5 o más reciente.
+Si se abre la ayuda, está listo. Requiere Stata 17 o más reciente.
 
 ---
 
