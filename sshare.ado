@@ -1,4 +1,4 @@
-*! version 3.2.0  01sep2026
+*! version 3.2.1  01sep2026
 *! sshare -- Traditional and spatial shift-share decomposition
 *!
 *! Decomposes the growth of every unit-area pair against the full
@@ -509,7 +509,7 @@ program define sshare, rclass sortpreserve
             label variable `prefix'EDL "Local differential effect: g - W.g_i"
         }
         foreach v of local outvars {
-            char `prefix'`v'[sshare] "3.2.0"
+            char `prefix'`v'[sshare] "3.2.1"
         }
         format `prefix'g `prefix'G_i `prefix'CN `prefix'EE `prefix'ED %9.5f
         if "`spatial'" != "" {
@@ -672,9 +672,13 @@ program define sshare_pair, sortpreserve
     quietly generate double `v0' = `ystub' if `year' == `t0'
     quietly generate double `v1' = `ystub' if `year' == `t1'
 
+    * -duplicates tag- leaves the tag MISSING outside its own if
+    * condition, and in Stata a missing value is greater than 0: the
+    * count must exclude those rows, or every year other than t0/t1
+    * is reported as a duplicate.
     quietly duplicates tag `by' `id' `year' ///
         if inlist(`year', `t0', `t1'), generate(`dupy')
-    quietly count if `dupy' > 0
+    quietly count if `dupy' > 0 & !missing(`dupy')
     if r(N) > 0 {
         display as error "more than one row per by() x id() x year" ///
             " at `t0'/`t1' (`r(N)' rows);"
