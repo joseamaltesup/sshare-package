@@ -179,6 +179,7 @@ sshare empleo, by(actividad) t0(2018) t1(2023) spatial generate
 
 | Stata dice | Qué significa y qué hacer |
 |---|---|
+| Mensajes de error en español, o un comportamiento que no coincide con esta guía | Está corriendo una copia VIEJA del comando que quedó en su máquina. Ejecute `which sshare`: si la ruta no es la carpeta `plus` de Stata, borre ese archivo viejo. Luego reinstale con la línea de la sección 2 añadiendo `replace` al final, y ejecute `discard`. `which sshare` debe mostrar la versión nueva. |
 | `variable CN already exists and was not created by sshare` | Ya existe una columna suya con ese nombre. Renómbrela, o use `prefix(mi_)` para que los efectos se llamen `mi_CN`, `mi_EE`, ... |
 | `spatial requires a weight matrix` | Ni la base trae matriz ni indicó `wfile()`. Vea la sección 4. |
 | `wid() has # values outside 1..32` | La columna de posición no corresponde a la matriz: cada región debe tener el número de fila que ocupa en W. |
