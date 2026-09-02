@@ -1,19 +1,17 @@
-*! version 2.4.0  01sep2026
-*! moransub -- Moran's I per unit, restricted to the subgraph of
-*!             areas with data, with permutation-based inference.
+*! version 3.0.0  02sep2026
+*! moransub -- Moran's I per unit with subgraph reduction option and permutation based. 
 *!
 *! Wraps moransub_unit() and its helpers (moransub_I, moransub_p3,
-*! moransub_kp, moransub_rownorm), defined in the Mata section at the
-*! end of this file.
+*! moransub_rownorm), defined in the Mata section at the end of
+*! this file.
 *!
 *! SEMANTICS OF nmin():
 *!   Moran's I is computed for EVERY unit above the internal floor of
-*!   4 areas; nmin() does not discard, it flags. reliable =
-*!   (n_eff >= nmin), and moran_sig requires significance AND
-*!   reliability, so small units end with moran_sig = 0 (not missing).
+*!   4 areas; nmin() does not discard and it used to indicate reliability. moran_sig requires significance AND
+*!   reliability, so small units end with moran_sig = 0. 
 *!
 *! OUTPUT VARIABLES:
-*!   n_states n_sub n_eff I p_norm p_two p_one p_abs0 I_kp p_kp E_I
+*!   n_states n_sub n_eff I E_I p_norm p_two p_one p_abs0
 *!   reliable moran_sig sig_level
 *! Results are also returned in r(), including the r(table) matrix
 *! (one row per unit). See the help file for the full description.
@@ -59,7 +57,7 @@ program define moransub, rclass sortpreserve
             exit 111
         }
         foreach v in n_states n_sub n_eff I E_I p_norm p_two p_one ///
-                     p_abs0 I_kp p_kp reliable moran_sig sig_level {
+                     p_abs0 reliable moran_sig sig_level {
             capture novarabbrev confirm numeric variable `prefix'`v'
             if _rc {
                 display as error "`prefix'`v' is gone; rerun" ///
@@ -134,17 +132,31 @@ program define moransub, rclass sortpreserve
 
     local y `varlist'
 
-    * -- Which rows enter -----------------------------------------------
-    * novarlist is essential. Without it, marksample drops the rows
-    * where `y' is missing, which are precisely the areas without data
-    * for the unit. Those rows MUST stay in: Moran's I is a result of
-    * the UNIT and has to be written on all of its rows. The missing
-    * `y' is not lost: when the vector of length rows(W) is assembled,
-    * positions without data stay missing, which is exactly what
-    * moransub_unit() expects to restrict the test to the subgraph.
+    * -- Which rows enter -------------------------------------------------
+    * Two different questions, easy to confuse:
+    *
+    *   (a) Which rows are PART OF THE ANALYSIS?  Every row selected by
+    *       if/in, whether or not it holds a value of `y'. A row with
+    *       `y' missing is an area where this unit has no data -- an
+    *       absence that the subgraph restriction needs to see.
+    *   (b) Which rows RECEIVE A RESULT?  All of them. Moran's I is a
+    *       statistic of the UNIT, not of the row, so the same value is
+    *       written on every row of the unit, missing `y' included.
+    *
+    * -novarlist- is what keeps both true. Without it, marksample would
+    * drop the rows with `y' missing, and those are precisely the areas
+    * the test must know about: when the vector of length rows(W) is
+    * assembled, their positions stay missing, and that is the signal
+    * moransub_unit() reads to restrict the test to the subgraph of
+    * areas WITH data. Dropping them would instead let the neighbors
+    * fall back to zero, which inflates false positives.
+    *
+    * Rows are still excluded further down for reasons that are not
+    * about `y': a missing by() (markout, right below) or a missing
+    * wid(), which leaves the area without a position in W.
     marksample touse, novarlist
 
-    * -- by(): strings accepted; a numeric key is built internally --------
+    * -- by(): strings accepted and a numeric key is built internally --------
     local bystr 0
     local by_src `by'
     capture confirm string variable `by'
@@ -355,8 +367,7 @@ program define moransub, rclass sortpreserve
     * silently. The existence check runs under -novarabbrev-: with
     * variable abbreviation on, a user variable named I_pipe would
     * otherwise bind to I and trip a spurious rc 110.
-    local mata_out n_states n_sub I p_norm p_two p_one p_abs0 ///
-                   I_kp p_kp E_I
+    local mata_out n_states n_sub I p_norm p_two p_one p_abs0 E_I
     local derived  n_eff reliable moran_sig sig_level
 
     foreach v in `mata_out' `derived' {
@@ -399,7 +410,7 @@ program define moransub, rclass sortpreserve
 
     * -- Derived flags ----------------------------------------------------
     * n_eff = min(n_states, n_sub). The subgraph can never exceed the
-    * areas with data, so the minimum is defensive, not corrective.
+    * areas with data. 
     quietly generate int `prefix'n_eff = ///
         min(`prefix'n_states, `prefix'n_sub) if !missing(`prefix'n_sub)
     quietly generate byte `prefix'reliable = ///
@@ -434,15 +445,13 @@ program define moransub, rclass sortpreserve
         "Permutation p, two-tailed"
     label variable `prefix'p_one     "Permutation p, one-tailed"
     label variable `prefix'p_abs0    "Permutation p, |I| centered at zero"
-    label variable `prefix'I_kp      "Kelejian-Prucha I"
-    label variable `prefix'p_kp      "Kelejian-Prucha p"
     label variable `prefix'reliable  "1 = n_eff >= `nmin'"
     label variable `prefix'moran_sig ///
         "1 = significant (p_two < `alpha', n >= `nmin')"
     label variable `prefix'sig_level ///
         "Smallest level passed: 1/5/10; 0 = n.s.; . = unreliable"
     foreach v in `mata_out' `derived' {
-        char `prefix'`v'[moransub] "2.4.0"
+        char `prefix'`v'[moransub] "3.0.0"
     }
 
     * -- Run record: provenance + replay -----------------------------------
@@ -472,12 +481,12 @@ program define moransub, rclass sortpreserve
     if r(N) > 0 & r(N) <= 20000 {
         local tv
         foreach v in n_states n_sub n_eff I E_I p_norm p_two p_one ///
-                     p_abs0 I_kp p_kp reliable moran_sig sig_level {
+                     p_abs0 reliable moran_sig sig_level {
             local tv `tv' `prefix'`v'
         }
         mata: st_matrix("`TB'", st_data(., "`tv'", "`tag1'"))
         matrix colnames `TB' = n_states n_sub n_eff I E_I p_norm ///
-            p_two p_one p_abs0 I_kp p_kp reliable moran_sig sig_level
+            p_two p_one p_abs0 reliable moran_sig sig_level
         mata: moransub_rnames("`TB'", "`by'", "`tag1'", ///
             `bystr', "`by_src'")
         return matrix table = `TB'
@@ -822,24 +831,12 @@ real rowvector function moransub_p3(real matrix z, real matrix W,
             (sum(abs(sims)       :>= abs(I_obs))      + 1) / (nperm + 1)))
 }
 
-/* --- Kelejian-Prucha with sign; robustness column ----------------- */
-real rowvector function moransub_kp(real colvector u, real matrix W)
-{
-    real scalar n, s2, tr, I
-    n  = rows(u)
-    s2 = (u' * u) / n
-    tr = trace((W' + W) * W)
-    if (s2 == 0 | tr <= 0) return((., .))
-    I = (u' * W * u) / (s2 * sqrt(tr))
-    return((I, 2 * (1 - normal(abs(I)))))
-}
-
 /* --- The full test for ONE unit.
        Receives the vector of length rows(Wbin) with MISSING where
        there is no data (not zeros) and the BINARY, non-normalized W,
        so it can restrict to the subgraph and re-standardize there.
        Returns: 1 n_used, 2 I, 3 p_norm, 4 p_two, 5 p_one,
-                6 p_abs0, 7 I_kp, 8 p_kp, 9 E_I.
+                6 p_abs0, 7 E_I.
        In "subgraph" mode it also drops areas that, within the
        subset, are left without any neighbor with data. Dropping an
        isolated node cannot disconnect the others, so one pass
@@ -850,15 +847,15 @@ real rowvector function moransub_unit(real colvector y, real matrix Wbin,
 {
     real colvector idx, sel, z
     real matrix Ws, Wr
-    real rowvector r1, r3, rk
+    real rowvector r1, r3
     real scalar n
 
     if (mode == "subgraph") {
         idx = selectindex(y :!= .)
-        if (rows(idx) < 4) return(J(1, 9, .))
+        if (rows(idx) < 4) return(J(1, 7, .))
         Ws  = Wbin[idx, idx]
         sel = selectindex(rowsum(Ws) :> 0)
-        if (rows(sel) < 4) return(J(1, 9, .))
+        if (rows(sel) < 4) return(J(1, 7, .))
         idx = idx[sel]
         Ws  = Wbin[idx, idx]
         z   = y[idx]
@@ -869,15 +866,14 @@ real rowvector function moransub_unit(real colvector y, real matrix Wbin,
     }
 
     n = rows(z)
-    if (variance(z) == 0) return(J(1, 9, .))
+    if (variance(z) == 0) return(J(1, 7, .))
     Wr = moransub_rownorm(Ws)
     z  = z :- mean(z)
 
     r1 = moransub_I(z, Wr)
     r3 = moransub_p3(z, Wr, r1[1,1], nperm)
-    rk = moransub_kp(z, Wr)
     return((n, r1[1,1], r1[1,2], r3[1,1], r3[1,2], r3[1,3],
-            rk[1,1], rk[1,2], -1 / (n - 1)))
+            -1 / (n - 1)))
 }
 
 /* --- Loop over units. Assembles the vector of length rows(W) from
@@ -919,7 +915,7 @@ void moransub_loop(string scalar yv,   string scalar byv,
         r = moransub_unit(yfull, Wbin, mode, nperm)
 
         /* Column 1: areas with data before restricting.
-           Columns 2 to 10: what moransub_unit() returns.
+           Columns 2 to 8: what moransub_unit() returns.
            The result belongs to the unit, so it is replicated on all
            of its rows to survive later merges.                      */
         V[sel, .] = J(rows(sel), 1, 1) * (ndata, r)

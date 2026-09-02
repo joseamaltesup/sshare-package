@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 3.2.0  01sep2026}{...}
+{* *! version 3.2.2  02sep2026}{...}
 {viewerjumpto "Syntax" "sshare##syntax"}{...}
 {viewerjumpto "Description" "sshare##description"}{...}
 {viewerjumpto "Data formats" "sshare##formats"}{...}

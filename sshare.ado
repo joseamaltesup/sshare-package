@@ -1,4 +1,4 @@
-*! version 3.2.1  01sep2026
+*! version 3.2.2  02sep2026
 *! sshare -- Traditional and spatial shift-share decomposition
 *!
 *! Decomposes the growth of every unit-area pair against the full
@@ -216,17 +216,35 @@ program define sshare, rclass sortpreserve
         y0(`y0') y1(`y1') ystub(`ystub') t0(`t0') t1(`t1') `popts'
 
     * -- Effect carriers: r() by default, variables under generate ----------
-    * Effects are always computed into the carriers named by the v*
-    * locals. Without -generate- those are tempvars (the dataset is
-    * left untouched; results live in r()). With -generate- they are
-    * the permanent output variables, with the 2.2.0 ownership rule:
-    * a variable carrying the char varname[sshare] was created by
-    * this command and is regenerated without asking; a variable
-    * WITHOUT the mark belongs to the user -- e.g., a g the user
-    * created earlier -- and is never overwritten silently. The existence
-    * check runs under -novarabbrev-: with variable abbreviation on,
-    * a user variable named G_i_pipe would otherwise bind to G_i and
-    * trip a spurious rc 110.
+    * A "carrier" is simply the variable each effect is computed into.
+    * The arithmetic below never names g, CN, EE ... directly: it writes
+    * to the locals `vg', `vCN', `vEE' ... and this block decides what
+    * those locals point at. That indirection is what lets one body of
+    * code serve both behaviours:
+    *
+    *   without -generate-  the carriers are TEMPVARS. They vanish when
+    *                       the command ends, so the user's dataset is
+    *                       left exactly as it was and the results
+    *                       travel out in r(effects)/r(units).
+    *   with -generate-     the carriers are the PERMANENT variables
+    *                       g G_i CN EE ED [+ the spatial ones], which
+    *                       stay in the dataset, labeled and formatted.
+    *
+    * Read `v`v'' below as "the carrier for effect `v'". The loops that
+    * follow only build those names; the ownership rule decides whether
+    * an existing variable may be reused.
+    *
+    * OWNERSHIP RULE (only under -generate-): a variable carrying the
+    * characteristic varname[sshare] was created by this command on an
+    * earlier run and is dropped and rebuilt without asking, so the
+    * edit-run-edit cycle never needs -replace-. A variable WITHOUT the
+    * mark belongs to the user -- say a g they computed by hand -- and
+    * is never overwritten silently: the command stops with rc 110 and
+    * the message offers rename, prefix() or replace.
+    *
+    * The existence check runs under -novarabbrev-: with variable
+    * abbreviation on, a user variable named G_i_pipe would otherwise
+    * answer to -confirm variable G_i- and trip a spurious rc 110.
     local outvars g G_i CN EE ED
     if "`spatial'" != "" {
         local outvars `outvars' g_reg Wg Wg_i n_nbrs CNL EEL EDL
@@ -260,9 +278,7 @@ program define sshare, rclass sortpreserve
     * ====================================================================
     * COMPLETE-PAIR RULE
     * A growth rate exists only when both years hold valid data and
-    * the base is positive. In many official sources a missing value
-    * is a confidentiality suppression, not absence of activity:
-    * filling with zeros would fabricate rates.
+    * the base is positive.
     * ====================================================================
     tempvar par x0 x1 gall
     quietly generate byte   `par'  = !missing(`y0', `y1') & `y0' > 0
@@ -271,11 +287,7 @@ program define sshare, rclass sortpreserve
     quietly generate double `gall' = (`y1' - `y0') / `y0' if `par'
 
     * ====================================================================
-    * BENCHMARKS -- COMPUTED ON THE FULL BASE, NOT ON if/in
-    * G, g_reg and the neighbor lag W.g_i are properties of the whole
-    * economy (canonical Ramajo-Marquez style). if/in restricts WHICH
-    * rows receive a decomposition, never what they are compared
-    * against.
+    * BENCHMARKS -- COMPUTED ON THE FULL BASE
     * ====================================================================
     if `"`gbench'"' == "" {
         quietly summarize `x0' if `first', meanonly
@@ -290,9 +302,7 @@ program define sshare, rclass sortpreserve
         local G = (`Y1nac' - `Y0nac') / `Y0nac'
         local benchdesc "full economy"
 
-        * Heuristic warning: the command cannot recover rows already
-        * removed with -keep-/-drop-; few distinct units suggests a
-        * trimmed base and a benchmark that is no longer national.
+        * Warning
         tempvar ugrp
         quietly egen `ugrp' = group(`by')
         quietly summarize `ugrp', meanonly
@@ -509,7 +519,7 @@ program define sshare, rclass sortpreserve
             label variable `prefix'EDL "Local differential effect: g - W.g_i"
         }
         foreach v of local outvars {
-            char `prefix'`v'[sshare] "3.2.1"
+            char `prefix'`v'[sshare] "3.2.2"
         }
         format `prefix'g `prefix'G_i `prefix'CN `prefix'EE `prefix'ED %9.5f
         if "`spatial'" != "" {
@@ -1196,9 +1206,7 @@ end
 
 
 * ======================================================================
-* Mata functions -- embedded in the ado-file so they are always
-* compiled with the command. -mata set matastrict- inside an
-* ado-file is local to the ado-file.
+* Mata functions
 * ======================================================================
 
 version 17

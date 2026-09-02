@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 2.4.0  01sep2026}{...}
+{* *! version 3.0.0  02sep2026}{...}
 {viewerjumpto "Syntax" "moransub##syntax"}{...}
 {viewerjumpto "Description" "moransub##description"}{...}
 {viewerjumpto "Options" "moransub##options"}{...}
@@ -9,8 +9,8 @@
 {title:Title}
 
 {p2colset 5 17 19 2}{...}
-{p2col :{cmd:moransub} {hline 2}}Moran's I per unit, restricted to the
-subgraph of areas with data, with a two-tailed permutation
+{p2col :{cmd:moransub} {hline 2}}Moran's I per unit with option of restricted to the
+subgraph of areas with data and permutation based. 
 p-value{p_end}
 {p2colreset}{...}
 
@@ -66,17 +66,14 @@ permutations):
 {cmd:moransub} computes Moran's I of {varname} for every unit in
 {opt by()}, restricting the weight matrix to the SUBGRAPH of areas
 with data: missing areas are removed and the neighborhoods are
-re-standardized there, instead of being filled with zeros (which
-inflates false positives dramatically). In many official sources a
-missing value reflects confidentiality suppression, not absence.
+re-standardized there, instead of being filled with zeros.
 
 {pstd}
 Inference uses a permutation test with three p-values. The headline
 statistic is the two-tailed {cmd:p_two}. {cmd:p_one} replicates
-PySAL's {cmd:esda.Moran.p_sim}; {cmd:p_abs0} keeps the legacy
-|I|-centered-at-zero rule for traceability. {cmd:p_norm} and
-the Kelejian-Prucha pair ({cmd:I_kp}, {cmd:p_kp}) are analytic
-companions.
+other statistical packages {cmd:esda.Moran.p_sim}; {cmd:p_abs0} keeps the legacy
+|I|-centered-at-zero rule for traceability. {cmd:p_norm} is the
+analytic companion, from the normal approximation.
 
 {pstd}
 {opt nmin()} does not discard: I is computed for every unit above the
@@ -151,11 +148,11 @@ units significant at 1/5/10%{p_end}
 
 {p2col 5 18 22 2: Matrices}{p_end}
 {synopt:{cmd:r(table)}}one row per unit: n_states n_sub n_eff I E_I
-p_norm p_two p_one p_abs0 I_kp p_kp reliable moran_sig sig_level. Row
-names = unit code or string. Skipped above 20,000 rows.{p_end}
+p_norm p_two p_one p_abs0 reliable moran_sig sig_level. Row names =
+unit code or string. Skipped above 20,000 rows.{p_end}
 
-{pstd}Generated variables: {cmd:n_states n_sub n_eff I p_norm p_two
-p_one p_abs0 I_kp p_kp E_I reliable moran_sig sig_level}.
+{pstd}Generated variables: {cmd:n_states n_sub n_eff I E_I p_norm
+p_two p_one p_abs0 reliable moran_sig sig_level}.
 
 
 {marker examples}{...}
@@ -192,8 +189,5 @@ en Mexico" (Econometria Aplicada con Stata, Stata Press).
 {phang}Bivand, R. S., and D. W. S. Wong. 2018. Comparing
 implementations of global and local indicators of spatial
 association. {it:TEST} 27: 716-748.{p_end}
-{phang}Kelejian, H. H., and I. R. Prucha. 2001. On the asymptotic
-distribution of the Moran I test statistic with applications.
-{it:Journal of Econometrics} 104: 219-257.{p_end}
 
 {psee}Also see: {helpb sshare}{p_end}
