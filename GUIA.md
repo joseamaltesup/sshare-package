@@ -14,8 +14,11 @@ comandos. La referencia técnica completa está en la ayuda instalada
 región se debe al empuje nacional, a la estructura del sector, o a
 la competitividad propia de la región?* Es la descomposición
 shift-share clásica (Dunn) y, si usted aporta un mapa de vecindades,
-también la versión espacial (Nazara–Hewings): la misma pregunta pero
-comparando contra los vecinos en lugar de contra el país.
+también la versión espacial de Ramajo y Márquez (2008): la misma
+pregunta, pero comparando contra los vecinos en lugar de contra el
+país. Ambas se reportan en la misma corrida, que es justamente lo que
+esos autores proponen: un solo modelo con los efectos globales y los
+locales.
 
 **`moransub`** responde: *¿el crecimiento de esta actividad está
 geográficamente agrupado?* — es decir, ¿las regiones donde crece son

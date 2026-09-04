@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 3.2.2  02sep2026}{...}
+{* *! version 3.2.3  04sep2026}{...}
 {viewerjumpto "Syntax" "sshare##syntax"}{...}
 {viewerjumpto "Description" "sshare##description"}{...}
 {viewerjumpto "Data formats" "sshare##formats"}{...}
@@ -12,7 +12,7 @@
 
 {p2colset 5 15 17 2}{...}
 {p2col :{cmd:sshare} {hline 2}}Traditional (Dunn) and spatial
-(Nazara-Hewings) shift-share decomposition{p_end}
+(Ramajo-Marquez) shift-share decomposition{p_end}
 {p2colreset}{...}
 
 
@@ -55,7 +55,7 @@ redisplay):
 {opt wid()} or {cmd:char _dta[W_idvar]}{p_end}
 
 {syntab:Spatial}
-{synopt:{opt spatial}}compute the Nazara-Hewings local effects{p_end}
+{synopt:{opt spatial}}compute the Ramajo-Marquez local effects{p_end}
 {synopt:{opt wid(varname)}}row position in W; default
 {cmd:char _dta[W_idvar]}{p_end}
 {synopt:{opt wfile(filename)}}read W from a {cmd:.mmat} file instead of
@@ -104,8 +104,8 @@ left untouched. The {opt generate} option additionally writes the
 effects as dataset variables.
 
 {pstd}
-With {opt spatial}, the spatial extension (Nazara-Hewings) replaces the
-national benchmark with the neighborhood: {cmd:Wg} is the aggregate
+With {opt spatial}, the spatial extension of Ramajo and Marquez (2008)
+replaces the national benchmark with the neighborhood: {cmd:Wg} is the aggregate
 growth of the area's neighbors, {cmd:Wg_i} the unit's growth in those
 neighbors, and the local effects are {cmd:CNL} = g - Wg,
 {cmd:EEL} = Wg_i - Wg and {cmd:EDL} = g - Wg_i, with
@@ -296,10 +296,12 @@ en Mexico"
 {phang}Dunn, E. S. 1960. A statistical and analytical technique for
 regional analysis. {it:Papers of the Regional Science Association} 6:
 97-112.{p_end}
+{phang}Ramajo, J., and M. A. Marquez. 2008. Componentes espaciales en
+el modelo shift-share. Una aplicacion al caso de las regiones
+peninsulares espanolas. {it:Estadistica Espanola} 50(168):
+247-272.{p_end}
 {phang}Nazara, S., and G. J. D. Hewings. 2004. Spatial structure and
 taxonomy of decomposition in shift-share analysis. {it:Growth and
 Change} 35: 476-490.{p_end}
-{phang}Ramajo, J., and M. A. Marquez. 2008. Componentes espaciales en
-el modelo shift-share. {it:Estadistica Espanola} 50: 41-65.{p_end}
 
 {psee}Also see: {helpb moransub}{p_end}

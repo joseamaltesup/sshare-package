@@ -1,5 +1,15 @@
-*! version 3.2.2  02sep2026
+*! version 3.2.3  04sep2026
 *! sshare -- Traditional and spatial shift-share decomposition
+*!
+*! Traditional decomposition: Dunn (1960). Spatial decomposition and
+*! the joint specification that reports both at once: Ramajo and
+*! Marquez (2008), whose equation [3] replaces every term of the
+*! traditional identity by its neighborhood equivalent
+*! (g_i = Wg + (Wg_i - Wg) + (g_i - Wg_i)) and whose equations [4]-[5]
+*! combine the global and the local effects in a single model. Nazara
+*! and Hewings (2004) is the antecedent: it introduced the spatially
+*! lagged variable, but as a catalogue of twenty possible
+*! decompositions rather than one integrated specification.
 *!
 *! Decomposes the growth of every unit-area pair against the full
 *! economy (CN = EE + ED) and, with the spatial option, against the
@@ -519,7 +529,7 @@ program define sshare, rclass sortpreserve
             label variable `prefix'EDL "Local differential effect: g - W.g_i"
         }
         foreach v of local outvars {
-            char `prefix'`v'[sshare] "3.2.2"
+            char `prefix'`v'[sshare] "3.2.3"
         }
         format `prefix'g `prefix'G_i `prefix'CN `prefix'EE `prefix'ED %9.5f
         if "`spatial'" != "" {

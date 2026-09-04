@@ -3,7 +3,7 @@
 Two Stata commands for spatial regional analysis. Pure Stata + Mata,
 no dependencies. Requires Stata 17 or newer.
 
-- **`sshare`** — traditional (Dunn) and spatial (Nazara–Hewings)
+- **`sshare`** — traditional (Dunn) and spatial (Ramajo–Márquez)
   shift-share decomposition. Decomposes the growth of every unit-area
   pair against the full economy (`CN = EE + ED`) and, with the
   `spatial` option, against the neighborhood defined by a contiguity
