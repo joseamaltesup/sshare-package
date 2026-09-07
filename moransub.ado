@@ -1,5 +1,5 @@
-*! version 3.0.0  02sep2026
-*! moransub -- Moran's I per unit with subgraph reduction option and permutation based. 
+*! version 3.1.0  07sep2026
+*! moransub -- Moran's I per unit with subgraph reduction option and permutation based.
 *!
 *! Wraps moransub_unit() and its helpers (moransub_I, moransub_p3,
 *! moransub_rownorm), defined in the Mata section at the end of
@@ -8,7 +8,14 @@
 *! SEMANTICS OF nmin():
 *!   Moran's I is computed for EVERY unit above the internal floor of
 *!   4 areas; nmin() does not discard and it used to indicate reliability. moran_sig requires significance AND
-*!   reliability, so small units end with moran_sig = 0. 
+*!   reliability, so small units end with moran_sig = 0.
+*!
+*! GROWTH RATE ON THE FLY (v3.1.0):
+*!   With t0(#) and t1(#) the first argument is a variable STUB and
+*!   the rate (ystub`t1' - ystub`t0') / ystub`t0' is built internally
+*!   under the complete-pair rule (both years valid, positive base),
+*!   exactly as sshare and the chapter pipeline compute g. Without
+*!   them, the argument is the precomputed rate, as before.
 *!
 *! OUTPUT VARIABLES:
 *!   n_states n_sub n_eff I E_I p_norm p_two p_one p_abs0
@@ -115,9 +122,11 @@ program define moransub, rclass sortpreserve
     * ================================================================
     * FULL RUN
     * ================================================================
-    syntax varname(numeric) [if] [in],                  ///
+    syntax anything(name=y id="growth variable or stub") [if] [in], ///
         BY(varname)                                     ///
-        [ WFile(string)                                 ///
+        [ T0(string)                                    ///
+          T1(string)                                    ///
+          WFile(string)                                 ///
           WID(varname numeric)                          ///
           WOBJ(name)                                    ///
           NPerm(integer 9999)                           ///
@@ -130,7 +139,64 @@ program define moransub, rclass sortpreserve
           NOTABle                                       ///
           replace ]
 
-    local y `varlist'
+    * -- y: a precomputed rate, or a stub resolved with t0()/t1() --------
+    * With t0() and t1() the growth rate is built internally from the
+    * wide columns `y'`t0' and `y'`t1' under the COMPLETE-PAIR rule
+    * (both years valid AND a positive base), the same rule sshare and
+    * the chapter pipeline apply. An incomplete pair leaves the rate
+    * missing, so the area enters the test as no-data -- which is what
+    * the subgraph restriction needs to see. The rate lives in a
+    * tempvar: the dataset is not touched.
+    if `: word count `y'' != 1 {
+        display as error "specify exactly one variable, or one stub" ///
+            " with t0() and t1(); see {helpb moransub}."
+        exit 198
+    }
+    if "`t0'" != "" | "`t1'" != "" {
+        if "`t0'" == "" | "`t1'" == "" {
+            display as error "t0() and t1() must be specified" ///
+                " together; see {helpb moransub}."
+            exit 198
+        }
+        capture confirm integer number `t0'
+        local rc0 = _rc
+        capture confirm integer number `t1'
+        if `rc0' | _rc {
+            display as error "t0() and t1() must be integer years."
+            exit 198
+        }
+        if `t0' >= `t1' {
+            display as error "t0(`t0') must precede t1(`t1')."
+            exit 198
+        }
+        capture confirm numeric variable `y'`t0'
+        local rc0 = _rc
+        capture confirm numeric variable `y'`t1'
+        if `rc0' | _rc {
+            display as error "`y'`t0' and/or `y'`t1' not found."
+            display as error "With t0()/t1(), wide format is" ///
+                " expected: one column per year (`y'`t0', `y'`t1')."
+            exit 111
+        }
+        local ysrc `y'
+        tempvar ygr
+        quietly generate double `ygr' = ///
+            (`y'`t1' - `y'`t0') / `y'`t0' ///
+            if !missing(`y'`t0', `y'`t1') & `y'`t0' > 0
+        local y `ygr'
+        display as text "Note: growth rate built from `ysrc'`t0'" ///
+            " and `ysrc'`t1' (complete-pair rule)."
+    }
+    else {
+        capture unab y : `y'
+        if _rc | `: word count `y'' != 1 {
+            display as error "variable `y' not found; give an" ///
+                " existing numeric variable, or a stub with t0()" ///
+                " and t1(); see {helpb moransub}."
+            exit 111
+        }
+        confirm numeric variable `y'
+    }
 
     * -- Which rows enter -------------------------------------------------
     * Two different questions, easy to confuse:
@@ -451,7 +517,7 @@ program define moransub, rclass sortpreserve
     label variable `prefix'sig_level ///
         "Smallest level passed: 1/5/10; 0 = n.s.; . = unreliable"
     foreach v in `mata_out' `derived' {
-        char `prefix'`v'[moransub] "3.0.0"
+        char `prefix'`v'[moransub] "3.1.0"
     }
 
     * -- Run record: provenance + replay -----------------------------------
@@ -469,6 +535,11 @@ program define moransub, rclass sortpreserve
     char _dta[moransub_nlinks] "`nlinks'"
     char _dta[moransub_if]     `"`if'"'
     char _dta[moransub_in]     "`in'"
+    * Provenance only (empty without t0()/t1()); replay does not read
+    * them: the stored table is complete without the source levels.
+    char _dta[moransub_t0]     "`t0'"
+    char _dta[moransub_t1]     "`t1'"
+    char _dta[moransub_ystub]  "`ysrc'"
 
     * -- Result matrix r(table): one row per unit ----------------------------
     tempvar tag1

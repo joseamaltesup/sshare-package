@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 3.0.0  02sep2026}{...}
+{* *! version 3.1.0  07sep2026}{...}
 {viewerjumpto "Syntax" "moransub##syntax"}{...}
 {viewerjumpto "Description" "moransub##description"}{...}
 {viewerjumpto "Options" "moransub##options"}{...}
@@ -22,6 +22,14 @@ p-value{p_end}
 {cmd:moransub} {varname} {ifin}{cmd:,} {opt by(varname)}
 [{it:options}]
 
+{pstd}or, letting the command build the growth rate from the wide
+year columns ({it:ystub}{it:#} such as {cmd:empleo2018},
+{cmd:empleo2023}):
+
+{p 8 16 2}
+{cmd:moransub} {it:ystub} {ifin}{cmd:,} {opt by(varname)}
+{opt t0(#)} {opt t1(#)} [{it:options}]
+
 {pstd}Replay (redisplay the stored table without redoing the
 permutations):
 
@@ -33,6 +41,10 @@ permutations):
 {synoptline}
 {syntab:Required}
 {synopt:{opt by(varname)}}unit identifier (numeric or string){p_end}
+
+{syntab:Growth rate on the fly}
+{synopt:{opt t0(#)}}base year; makes the first argument a stub{p_end}
+{synopt:{opt t1(#)}}final year; must follow {opt t0()}{p_end}
 
 {syntab:Weight matrix}
 {synopt:{opt wid(varname)}}row position in W; default
@@ -105,6 +117,15 @@ permutations.
 accepted; the string is used as the display label and as the row name
 in {cmd:r(table)}.
 
+{phang}{opt t0(#)} and {opt t1(#)}, always together, turn the first
+argument into a variable STUB: the growth rate
+({it:ystub}{it:t1} - {it:ystub}{it:t0}) / {it:ystub}{it:t0} is built
+internally from the wide year columns under the complete-pair rule
+-- both years valid AND a positive base, the same rule {helpb sshare}
+applies -- so the user does not need a precomputed rate. Incomplete
+pairs stay missing and enter the test as no-data areas. The rate
+lives in a temporary variable: the dataset is not modified.
+
 {phang}{opt mode(subgraph)} (default) restricts W to the areas with
 data; {opt mode(zero)} fills missing areas with 0 and is kept only to
 demonstrate why it should not be used.
@@ -162,6 +183,10 @@ p_two p_one p_abs0 reliable moran_sig sig_level}.
 {phang2}{cmd:. use data/capitulo.dta, clear}{p_end}
 {phang2}{cmd:. sshare empleo, by(unit_key) t0(2018) t1(2023) spatial notable}{p_end}
 {phang2}{cmd:. moransub g, by(unit_key)}{p_end}
+
+{pstd}Same test without a precomputed rate: the stub plus
+{opt t0()}/{opt t1()} builds it internally:{p_end}
+{phang2}{cmd:. moransub empleo, by(unit_key) t0(2018) t1(2023)}{p_end}
 
 {pstd}Replay with readable names, no recomputation:{p_end}
 {phang2}{cmd:. moransub, label(subcluster_name)}{p_end}
