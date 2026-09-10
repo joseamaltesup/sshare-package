@@ -107,16 +107,30 @@ columna en su base con la **posición de cada región en la matriz**
 
 ## 5. Primer paso: ¿hay estructura espacial? (`moransub`)
 
-Se corre sobre la tasa de crecimiento. Si su base es ancha (una
-columna por año, como `empleo2018` y `empleo2023`), no necesita
-crearla: pase el tallo con `t0()` y `t1()` y el comando la construye
+Se corre sobre la tasa de crecimiento, pero no hace falta que usted
+la calcule: con `t0()` y `t1()` el comando la construye
 internamente, con la misma regla de par completo de `sshare` (ambos
-años válidos y base positiva), sin tocar su base:
+años válidos y base positiva) y sin tocar su base.
+
+Si su base es **ancha** (una columna por año, como `empleo2018` y
+`empleo2023`), pase el nombre sin el año:
 
 ```stata
 moransub empleo, by(actividad) t0(2018) t1(2023) ///
     wfile(mi_matriz) wid(pos_w)
 ```
+
+Si su base es **larga** (una fila por año), añada `year()` —la
+variable que marca el año— e `id()` —la que identifica a la región
+dentro de cada actividad—:
+
+```stata
+moransub empleo, by(actividad) t0(2018) t1(2023) ///
+    year(anio) id(estado) wfile(mi_matriz) wid(pos_w)
+```
+
+Las dos rutas dan exactamente los mismos números. `sshare` acepta
+`year()` e `id()` igual que `moransub`.
 
 O, si prefiere la tasa como variable propia, créela y pásela:
 

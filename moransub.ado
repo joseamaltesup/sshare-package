@@ -1,4 +1,4 @@
-*! version 3.1.0  07sep2026
+*! version 3.2.0  10sep2026
 *! moransub -- Moran's I per unit with subgraph reduction option and permutation based.
 *!
 *! Wraps moransub_unit() and its helpers (moransub_I, moransub_p3,
@@ -16,6 +16,13 @@
 *!   under the complete-pair rule (both years valid, positive base),
 *!   exactly as sshare and the chapter pipeline compute g. Without
 *!   them, the argument is the precomputed rate, as before.
+*!
+*! DATA FORMATS (v3.2.0):
+*!   t0()/t1() read WIDE data by default: one column per year. Adding
+*!   year() [+ id()] switches to LONG data, one row per by-id-year,
+*!   the same route sshare offers. The rate is written on every row
+*!   of the pair and the panel tolerance takes each pair once, so
+*!   both formats give identical results.
 *!
 *! OUTPUT VARIABLES:
 *!   n_states n_sub n_eff I E_I p_norm p_two p_one p_abs0
@@ -126,6 +133,8 @@ program define moransub, rclass sortpreserve
         BY(varname)                                     ///
         [ T0(string)                                    ///
           T1(string)                                    ///
+          Year(varname numeric)                         ///
+          ID(varlist)                                   ///
           WFile(string)                                 ///
           WID(varname numeric)                          ///
           WOBJ(name)                                    ///
@@ -169,23 +178,100 @@ program define moransub, rclass sortpreserve
             display as error "t0(`t0') must precede t1(`t1')."
             exit 198
         }
-        capture confirm numeric variable `y'`t0'
-        local rc0 = _rc
-        capture confirm numeric variable `y'`t1'
-        if `rc0' | _rc {
-            display as error "`y'`t0' and/or `y'`t1' not found."
-            display as error "With t0()/t1(), wide format is" ///
-                " expected: one column per year (`y'`t0', `y'`t1')."
-            exit 111
-        }
         local ysrc `y'
         tempvar ygr
-        quietly generate double `ygr' = ///
-            (`y'`t1' - `y'`t0') / `y'`t0' ///
-            if !missing(`y'`t0', `y'`t1') & `y'`t0' > 0
+
+        if "`year'" == "" {
+            * WIDE: one column per year.
+            capture confirm numeric variable `y'`t0'
+            local rc0 = _rc
+            capture confirm numeric variable `y'`t1'
+            if `rc0' | _rc {
+                display as error "`y'`t0' and/or `y'`t1' not found."
+                display as error "With t0()/t1(), wide format is" ///
+                    " expected: one column per year (`y'`t0'," ///
+                    " `y'`t1')."
+                display as error "For long data add year(); see" ///
+                    " {help moransub##formats:data formats}."
+                exit 111
+            }
+            quietly generate double `ygr' = ///
+                (`y'`t1' - `y'`t0') / `y'`t0' ///
+                if !missing(`y'`t0', `y'`t1') & `y'`t0' > 0
+            display as text "Note: growth rate built from" ///
+                " `ysrc'`t0' and `ysrc'`t1' (complete-pair rule)."
+        }
+        else {
+            * LONG: one row per by-id-year, as in -sshare-. The rate
+            * is written on EVERY row of the pair, which is what the
+            * panel tolerance further down expects.
+            capture confirm numeric variable `y'
+            if _rc {
+                display as error "with year(), `y' must be an" ///
+                    " existing numeric variable; see" ///
+                    " {helpb moransub}."
+                exit 111
+            }
+
+            * id(): the area within by(). Same default as sshare.
+            if "`id'" == "" {
+                if "`wid'" != "" local id `wid'
+                else {
+                    local id `"`: char _dta[W_idvar]'"'
+                    capture confirm numeric variable `id'
+                    if "`id'" == "" | _rc {
+                        display as error "long format needs id():" ///
+                            " the variable(s) identifying the area"
+                        display as error "within by() (e.g. the" ///
+                            " state key); see {helpb moransub}."
+                        exit 198
+                    }
+                    display as text "Note: id(`id') taken from" ///
+                        " char _dta[W_idvar]."
+                }
+            }
+
+            tempvar v0 v1 dupy
+            quietly generate double `v0' = `y' if `year' == `t0'
+            quietly generate double `v1' = `y' if `year' == `t1'
+
+            * -duplicates tag- leaves the tag MISSING outside its own
+            * if condition, and a missing value is greater than 0:
+            * the count must exclude those rows, or every year other
+            * than t0/t1 counts as a duplicate.
+            quietly duplicates tag `by' `id' `year' ///
+                if inlist(`year', `t0', `t1'), generate(`dupy')
+            quietly count if `dupy' > 0 & !missing(`dupy')
+            if r(N) > 0 {
+                display as error "more than one row per by() x" ///
+                    " id() x year at `t0'/`t1' (`r(N)' rows);"
+                display as error "the long format needs a unique" ///
+                    " series; see {helpb moransub}."
+                exit 459
+            }
+
+            tempvar q0 q1
+            quietly bysort `by' `id': egen double `q0' = max(`v0')
+            quietly bysort `by' `id': egen double `q1' = max(`v1')
+            quietly count if !missing(`q0')
+            if r(N) == 0 {
+                display as error "no rows with `year' == `t0' hold" ///
+                    " data: check t0()/t1() against the panel years."
+                exit 2000
+            }
+            quietly generate double `ygr' = (`q1' - `q0') / `q0' ///
+                if !missing(`q0', `q1') & `q0' > 0
+            display as text "Note: growth rate built from `ysrc'" ///
+                " at `year' == `t0' and `t1' (complete-pair rule)."
+        }
         local y `ygr'
-        display as text "Note: growth rate built from `ysrc'`t0'" ///
-            " and `ysrc'`t1' (complete-pair rule)."
+    }
+    else if "`year'" != "" | "`id'" != "" {
+        display as error "year() and id() describe the long format" ///
+            " and require t0() and t1();"
+        display as error "without them, give the growth rate" ///
+            " already computed. See {helpb moransub}."
+        exit 198
     }
     else {
         capture unab y : `y'
@@ -422,7 +508,7 @@ program define moransub, rclass sortpreserve
             exit 459
         }
         display as text "Note: panel structure detected (`ndup'" ///
-            " duplicated rows per unit-area);"
+            " rows share a unit-area pair);"
         display as text "the constant value of each pair is used once."
     }
 
@@ -517,7 +603,7 @@ program define moransub, rclass sortpreserve
     label variable `prefix'sig_level ///
         "Smallest level passed: 1/5/10; 0 = n.s.; . = unreliable"
     foreach v in `mata_out' `derived' {
-        char `prefix'`v'[moransub] "3.1.0"
+        char `prefix'`v'[moransub] "3.2.0"
     }
 
     * -- Run record: provenance + replay -----------------------------------
